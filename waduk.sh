@@ -18,7 +18,6 @@ apt upgrade -y
 apt install git -y
 apt install at -y
 apt install curl -y
-apt install wget -y
 apt install jq -y
 apt install lolcat -y
 apt install gem -y
