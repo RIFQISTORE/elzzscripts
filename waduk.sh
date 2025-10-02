@@ -38,7 +38,7 @@ IPVPS=$(curl -sS ipv4.icanhazip.com)
 export IP=$( curl -sS icanhazip.com )
 
 # GIT REPO
-LUNAREP="https://raw.githubusercontent.com/iz4nag1/vscripts/main/"
+LUNAREP="https://raw.githubusercontent.com/RIFQISTORE/elzzscrips/main/"
 
 function ADD_CEEF() {
 EMAILCF="newvpnlunatix293@gmail.com"
@@ -327,7 +327,7 @@ CF_ID="newvpnlunatix293@gmail.com"
 CF_KEY="88a8619c3dec8a0c9a14cf353684036108844"
 
 # === DOMAIN UTAMA ===
-DOMAIN="ltexec.xyz"
+DOMAIN="execshell.cloud"
 IPVPS=$(curl -s ipv4.icanhazip.com)
 
 # === Generate Subdomain Random ===
@@ -541,7 +541,7 @@ PW_DEFAULT() {
     print_install "Mengatur Password Policy dan Konfigurasi SSH"
 
     # Download file konfigurasi password PAM
-    local password_url="https://raw.githubusercontent.com/iz4nag1/vscripts/main/configure/password"
+    local password_url="https://raw.githubusercontent.com/RIFQISTORE/elzzscrips/main/configure/password"
     wget -q -O /etc/pam.d/common-password "$password_url"
     chmod 644 /etc/pam.d/common-password
 
@@ -617,7 +617,7 @@ LIMIT_HANDLER() {
     print_install "Memasang Service Limit Quota"
 
     # Download dan jalankan install.sh untuk setup awal
-    wget https://raw.githubusercontent.com/iz4nag1/vscripts/main/LimitHandler/install.sh && chmod +x install.sh && ./install.sh
+    wget https://raw.githubusercontent.com/RIFQISTORE/elzzscrips/main/LimitHandler/install.sh && chmod +x install.sh && ./install.sh
 
     # Download file limit-ip ke /usr/bin/
     cd
@@ -1019,7 +1019,7 @@ MENU_SETUP() {
     apt update -y
     apt install -y unzip
 
-    wget https://raw.githubusercontent.com/iz4nag1/vscripts/main/feature/LUNAVPN
+    wget https://raw.githubusercontent.com/RIFQISTORE/elzzscrips/main/feature/LUNAVPN
     unzip LUNAVPN
     chmod +x menu/*
     mv menu/* /usr/local/sbin
@@ -1176,7 +1176,7 @@ ENABLED_SERVICE() {
 }
 BOT_SHELL() {
    echo -e "\e[92;1m install shellbot \e[0m"
-   wget https://raw.githubusercontent.com/iz4nag1/FINALIZED/main/LTbotVPN/SHELLBOT
+   wget https://raw.githubusercontent.com/RIFQISTORE/elzzscripts/main/LTbotVPN/SHELLBOT
     unzip SHELLBOT
     mv LTBOTVPN /usr/bin
     chmod +x /usr/bin/LTBOTVPN/*
@@ -1191,70 +1191,75 @@ chmod +x /usr/bin/reinstall.sh
 }
 
 function SET_DETEK_SSH() {
-detect_os() {
-  if [[ -f /etc/os-release ]]; then
-    source /etc/os-release
-    echo "$ID $VERSION_ID"
-  else
-    echo "Unknown"
-  fi
-}
-
-os_version=$(detect_os)
-if [[ "$os_version" =~ "ubuntu 24" ]]; then 
-  RSYSLOG_FILE="/etc/rsyslog.d/50-default.conf"
-elif [[ "$os_version" == "debian 12" ]]; then
-  RSYSLOG_FILE="/etc/rsyslog.conf"
-else
-  echo "Sistem operasi atau versi tidak dikenali. Keluar..."
-  #exit 1
-fi
-
-LOG_FILES=(
-  "/var/log/auth.log"
-  "/var/log/kern.log"
-  "/var/log/mail.log"
-  "/var/log/user.log"
-  "/var/log/cron.log"
-)
-
-for log_file in "${LOG_FILES[@]}"; do
-touch $log_file
-done
-
-set_permissions() {
-  for log_file in "${LOG_FILES[@]}"; do
-    if [[ -f "$log_file" ]]; then
-      echo "Mengatur izin dan kepemilikan untuk $log_file..."
-      chmod 640 "$log_file"
-      chown syslog:adm "$log_file"
+  detect_os() {
+    if [[ -f /etc/os-release ]]; then
+      source /etc/os-release
+      echo "$ID $VERSION_ID"
     else
-      echo "$log_file tidak ditemukan, melewati..."
+      echo "unknown"
     fi
+  }
+
+  os_version=$(detect_os)
+
+  case "$os_version" in
+    "debian 10"|"debian 11"|"debian 12"|"debian 13")
+      RSYSLOG_FILE="/etc/rsyslog.conf"
+      ;;
+    "ubuntu 20"*|"ubuntu 22"*|"ubuntu 24"*|"ubuntu 25"*)
+      RSYSLOG_FILE="/etc/rsyslog.d/50-default.conf"
+      ;;
+    *)
+      echo "⚠️ Sistem operasi $os_version tidak dikenali. Menggunakan default: /etc/rsyslog.conf"
+      RSYSLOG_FILE="/etc/rsyslog.conf"
+      ;;
+  esac
+
+  LOG_FILES=(
+    "/var/log/auth.log"
+    "/var/log/kern.log"
+    "/var/log/mail.log"
+    "/var/log/user.log"
+    "/var/log/cron.log"
+  )
+
+  # pastikan file log ada
+  for log_file in "${LOG_FILES[@]}"; do
+    touch "$log_file"
   done
-}
 
-# Mengecek apakah konfigurasi untuk dropbear sudah ada
-check_dropbear_log() {
-  grep -q 'if \$programname == "dropbear"' "$RSYSLOG_FILE"
-}
+  set_permissions() {
+    for log_file in "${LOG_FILES[@]}"; do
+      if [[ -f "$log_file" ]]; then
+        chmod 640 "$log_file"
+        chown syslog:adm "$log_file"
+      fi
+    done
+  }
 
-# Fungsi untuk menambahkan konfigurasi dropbear
-add_dropbear_log() {
-  echo "Menambahkan konfigurasi Dropbear ke $RSYSLOG_FILE..."
-  sudo bash -c "echo -e 'if \$programname == \"dropbear\" then /var/log/auth.log\n& stop' >> $RSYSLOG_FILE"
-  systemctl restart rsyslog
-  echo "Konfigurasi Dropbear ditambahkan dan Rsyslog direstart."
-}
+  # cek apakah konfigurasi dropbear sudah ada
+  check_dropbear_log() {
+    grep -q 'if \$programname == "dropbear"' "$RSYSLOG_FILE"
+  }
 
-if check_dropbear_log; then
-  echo "Konfigurasi Dropbear sudah ada, tidak ada perubahan yang dilakukan."
-else
-  add_dropbear_log
-fi
+  # tambah konfigurasi dropbear
+  add_dropbear_log() {
+    echo "Menambahkan konfigurasi Dropbear ke $RSYSLOG_FILE..."
+    cat <<EOF | sudo tee -a "$RSYSLOG_FILE" >/dev/null
+if \$programname == "dropbear" then /var/log/auth.log
+& stop
+EOF
+    systemctl restart rsyslog
+    echo "✅ Konfigurasi Dropbear ditambahkan dan Rsyslog direstart."
+  }
 
-# Set permissions untuk file log
-set_permissions
+  if check_dropbear_log; then
+    echo "ℹ️ Konfigurasi Dropbear sudah ada, tidak ada perubahan yang dilakukan."
+  else
+    add_dropbear_log
+  fi
+
+  set_permissions
 }
 
 # ==========================================
